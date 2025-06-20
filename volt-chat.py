@@ -35,7 +35,7 @@ Examples:
 if __name__ == "__main__":
     if len(sys.argv) < 3:
         usage()
-        exit(1)
+        sys.exit(1)
     
     user_api_url = "http://localhost:3000/api/chat/completions"
 
