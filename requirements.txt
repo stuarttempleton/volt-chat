@@ -1,3 +1,2 @@
 requests
-git+https://github.com/stuarttempleton/volt-logger.git
-git+https://github.com/stuarttempleton/volt-llm-client.git
+volt-llm-client

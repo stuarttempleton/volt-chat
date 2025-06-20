@@ -23,9 +23,7 @@ It uses [`volt-llm-client`](https://github.com/stuarttempleton/volt-llm-client) 
 Install both manually if needed:
 
 ```bash
-pip install \
-  git+https://github.com/stuarttempleton/volt-logger.git \
-  git+https://github.com/stuarttempleton/volt-llm-client.git
+pip install volt-llm-client
 ````
 
 ---
