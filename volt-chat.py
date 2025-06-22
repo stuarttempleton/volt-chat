@@ -158,7 +158,7 @@ if __name__ == "__main__":
         elif your_message.strip() == "/load":
             files = sorted([f for f in os.listdir('.') if f.endswith('.json')], reverse=True)
             if not files:
-                Logger.log(f"{Colors.fg.red}No .json transcript files found in current directory.{Colors.reset}")
+                Logger.log(f"\n{sys_color}(No .json transcript files found in current directory.){Colors.reset}\n")
                 continue
 
             Logger.log(f"\n{highlight_color}Available transcript files:{Colors.reset}")
