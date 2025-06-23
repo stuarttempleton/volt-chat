@@ -100,4 +100,5 @@ if __name__ == "__main__":
 
     Logger.log(f"\n{Colors.italic}{ChatColors.system}Connected to {llm.client.api_url} using model '{persona}'{Colors.reset}\n")
 
+    # This is the main loop. FYI.
     run_chat(llm=llm, handle=handle, persona=persona)
