@@ -52,4 +52,12 @@ class Colors:
         cyan = _code('\033[46m')
         lightgrey = _code('\033[47m')
 
+# Set up some default Colors
+class ChatColors:
+    text = Colors.fg.lightgrey
+    system = Colors.fg.darkgrey
+    sender = Colors.fg.green
+    recpt = Colors.fg.purple
+    highlight = Colors.fg.cyan
+
 
