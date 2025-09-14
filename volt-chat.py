@@ -29,12 +29,12 @@ Arguments:
   <user_name>:   Your name to identify yourself in the chat.
 
 Optional Arguments:
-  --api-url=<openai_api_url>:  Overrides the default OpenAI API URL.  
-                                  (e.g., --api-url=http://localhost:3000/api/chat/completions)
-  --no-color                   Disable ANSI color output (helpful for logs or plain terminals). 
+  --base-url=<openai_base_url>:  Overrides the default OpenAI base URL.
+                                  (e.g., --base-url=http://localhost:3000)
+  --no-color                   Disable ANSI color output (helpful for logs or plain terminals).
 
 Examples:
-  {script_name} Gemma3:12b Alice --api-url=http://my-local-server:8000/api/chat
+  {script_name} Gemma3:12b Alice --base-url=http://my-local-server:8000
   {script_name} Llama2 Bob
 
 Notes:
@@ -81,24 +81,24 @@ if __name__ == "__main__":
         usage()
         sys.exit(1)
     
-    user_api_url = "http://localhost:3000/api/chat/completions"
+    user_api_url = "http://localhost:3000"
 
     for arg in sys.argv[1:]:
         if arg.startswith("--help"):
             usage()
             sys.exit(0)
-        elif arg.startswith("--api-url="):
+        elif arg.startswith("--base-url="):
             user_api_url = arg.split("=")[1]
             if not user_api_url:
-                print("Error: --api-url provided but no API url was specified.")
+                print("Error: --base-url provided but no base URL was specified.")
                 sys.exit(1)
 
     # Set up your chat identities
     persona = sys.argv[1] or "Gemma3"
     handle = sys.argv[2] or "User"
-    llm = LLMConversation(model=persona, system_prompt="We are best buds!", api_url=user_api_url)
+    llm = LLMConversation(model=persona, system_prompt="We are best buds!", base_url=user_api_url)
 
-    Logger.log(f"\n{Colors.italic}{ChatColors.system}Connected to {llm.client.api_url} using model '{persona}'{Colors.reset}\n")
+    Logger.log(f"\n{Colors.italic}{ChatColors.system}Connected to {llm.client.base_url} using model '{persona}'{Colors.reset}\n")
 
     # This is the main loop. FYI.
     run_chat(llm=llm, handle=handle, persona=persona)

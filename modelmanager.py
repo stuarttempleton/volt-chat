@@ -12,8 +12,12 @@ class ModelManager:
     def show(self, llm):
         models = llm.client.get_models() or "feature not available"
         model_list = ""
-        for model in models['data']: 
-            model_list += f"\n\t{model.get('name', '??')} - {model.get('id', '??')}"
+        if "data" in models:
+            for model in models['data']: 
+                model_list += f"\n\t{model.get('name', '??')} - {model.get('id', '??')}"
+        elif "models" in models:
+            for model in models['models']: 
+                model_list += f"\n\t{model.get('name', '??')} - {model.get('model', '??')}"
         Logger.log(f"\n{Colors.italic}{ChatColors.system}Models found:{model_list}{Colors.reset}\n")
 
 ModelManager = ModelManager()
