@@ -4,6 +4,7 @@
 # Routes varous slash commands to the proper manager. 
 # 
 
+import sys
 
 from voltlogger import Logger
 from chatcolors import Colors, ChatColors
@@ -23,7 +24,7 @@ class CommandRouter:
 
         if cmd in {"/quit", "/bye", "/exit"}:
             Logger.log(f"{Colors.reset}{Colors.italic}{ChatColors.system}\nExiting...{Colors.reset}\n")
-            exit(0)
+            sys.exit(0)
 
         elif cmd in {"/help", "/?"}:
             self._show_help()
