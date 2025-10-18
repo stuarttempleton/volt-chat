@@ -7,6 +7,7 @@
 
 import os
 import sys
+from options import resolve_options
 
 # ANSI Chat colors
 from chatcolors import Colors
@@ -17,33 +18,31 @@ from commandrouter import CommandRouter
 
 
 def usage():
-    script_name = os.path.basename(sys.argv[0])
-    message = f"""
-Usage: {script_name} <model_name> <user_name> [--api-url=<openai_api_url>]
+        script_name = os.path.basename(sys.argv[0])
+        message = f"""
+Usage: {script_name} [--persona=MODEL] [--handle=USERNAME] [--base-url=URL] [--system-prompt=TEXT] [--config=PATH] [--no-color]
 
 Description:
-  Starts a text-based chat session with an LLM.
+    Starts a text-based chat session with an LLM.
 
-Arguments:
-  <model_name>:   The name of the LLM to use (e.g., "Gemma3").
-  <user_name>:   Your name to identify yourself in the chat.
-
-Optional Arguments:
-  --base-url=<openai_base_url>:  Overrides the default OpenAI base URL.
-                                  (e.g., --base-url=http://localhost:3000)
-  --no-color                   Disable ANSI color output (helpful for logs or plain terminals).
+Options:
+    --persona=MODEL         Name of the LLM model to use (default: Gemma3)
+    --handle=USERNAME       Display name of the chat participant (default: User)
+    --base-url=URL          Base URL of the local LLM server (default: http://localhost:3000)
+    --system-prompt=TEXT    Override the system prompt
+    --config=PATH           Explicitly load a config file (JSON or YAML)
+    --no-color              Disable ANSI color output
 
 Examples:
-  {script_name} Gemma3:12b Alice --base-url=http://my-local-server:8000
-  {script_name} Llama2 Bob
+    {script_name} --persona=Gemma3:12b --handle=Alice --base-url=http://my-local-server:8000
+    {script_name} --persona=Llama2 --handle=Bob
 
 Notes:
-  - Type your message and press Enter to chat.
-  - Commands must begin with a '/' character.
-  - Use --no-color if your terminal doesn't support ANSI escape codes.
-
+    - Type your message and press Enter to chat.
+    - Commands must begin with a '/' character.
+    - Use --no-color if your terminal doesn't support ANSI escape codes.
 """
-    Logger.help(message)
+        Logger.help(message)
 
 def run_chat(llm, handle, persona):
     router = CommandRouter(llm=llm, persona=persona)
@@ -76,29 +75,28 @@ def run_chat(llm, handle, persona):
         Logger.log(f"{Colors.reset}{Colors.bold}{ChatColors.recpt}{persona.capitalize()}{Colors.reset}: {ChatColors.text}{response}{Colors.reset}\n")
 
 
-if __name__ == "__main__":
-    if len(sys.argv) < 3:
+def main() -> None:
+    # Check for --help or -h before parsing other options
+    if any(arg in ("--help", "-h") for arg in sys.argv[1:]):
         usage()
-        sys.exit(1)
-    
-    user_api_url = "http://localhost:3000"
+        sys.exit(0)
 
-    for arg in sys.argv[1:]:
-        if arg.startswith("--help"):
-            usage()
-            sys.exit(0)
-        elif arg.startswith("--base-url="):
-            user_api_url = arg.split("=")[1]
-            if not user_api_url:
-                print("Error: --base-url provided but no base URL was specified.")
-                sys.exit(1)
+    opts = resolve_options()
 
-    # Set up your chat identities
-    persona = sys.argv[1] or "Gemma3"
-    handle = sys.argv[2] or "User"
-    llm = LLMConversation(model=persona, system_prompt="We are best buds!", base_url=user_api_url)
+    llm = LLMConversation(
+        model=opts.persona,
+        system_prompt=opts.system_prompt,
+        base_url=opts.base_url,
+    )
 
-    Logger.log(f"\n{Colors.italic}{ChatColors.system}Connected to {llm.client.base_url} using model '{persona}'{Colors.reset}\n")
+    Logger.log(
+        f"\n{Colors.italic}{ChatColors.system}"
+        f"Connected to {llm.client.base_url} using model '{opts.persona}'"
+        f"{Colors.reset}\n"
+    )
 
-    # This is the main loop. FYI.
-    run_chat(llm=llm, handle=handle, persona=persona)
+    run_chat(llm=llm, handle=opts.handle, persona=opts.persona)
+
+
+if __name__ == "__main__":
+    main()

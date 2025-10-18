@@ -1,0 +1,122 @@
+# options.py
+# 10/18/2025 - Voltur
+#
+# Loading arguments from command‑line and local config file.
+# 
+
+
+import argparse
+import json
+import sys
+from pathlib import Path
+from typing import Dict
+
+# Helpers for loading JSON / YAML
+try:
+    import yaml  # pip install pyyaml   # optional, for .yaml files
+except ImportError:   # pragma: no cover
+    yaml = None
+
+
+def _read_json(path: Path) -> Dict:
+    if not path.is_file():
+        return {}
+    with path.open("r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def _read_yaml(path: Path) -> Dict:
+    if yaml is None:          # pragma: no cover
+        return {}
+    if not path.is_file():
+        return {}
+    with path.open("r", encoding="utf-8") as f:
+        return yaml.safe_load(f) or {}
+
+
+def _load_local_config() -> Dict:
+    """Search cwd ➜ home for a config file and return its dict."""
+    candidates = [
+        Path.cwd() / "volt-config.json",
+        Path.cwd() / "volt-config.yaml",
+        Path.home() / ".volt-config.rc",
+        Path.home() / ".volt-config.json",
+        Path.home() / ".volt-config.yaml",
+    ]
+
+    for cfg_path in candidates:
+        data = _read_json(cfg_path) if cfg_path.suffix == ".json" else _read_yaml(cfg_path)
+        if data:
+            print(f"[volt-chat] ✅  Loaded config from {cfg_path}")
+            return data
+    print("[volt-chat] No config file found - using defaults")
+    return {}
+
+
+# Argparse boilerplate
+def _build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        description="Volt-Chat: a local LLM chat client",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+
+    # LLM model to use
+    parser.add_argument("--persona", dest="persona", metavar="MODEL",
+                        help="Name of the LLM model to use")
+    # User's chat handle
+    parser.add_argument("--handle", dest="handle", metavar="USERNAME",
+                        help="Display name of the chat participant")
+    # Base URL for local LLM server, include port
+    parser.add_argument("--base-url", dest="base_url", metavar="URL",
+                        help="Base URL of the local LLM server")
+    # System prompt override
+    parser.add_argument("--system-prompt", dest="system_prompt",
+                        help="Override the system prompt")
+    # Config file path
+    parser.add_argument("--config", dest="config_path", metavar="PATH",
+                        help="Explicitly load a config file (JSON or YAML)")
+
+    return parser
+
+
+# Resolve the final configuration
+def resolve_options() -> argparse.Namespace:
+
+    # Defaults
+    defaults: Dict = {
+        "base_url": "http://localhost:3000",
+        "persona": "Gemma3",
+        "handle": "User",
+        "system_prompt": "We are best buds!",
+    }
+
+    # Load the config file (auto or explicit)
+    parser = _build_parser()
+
+    # First parse once to grab --config early
+    initial_args, _ = parser.parse_known_args()
+    if initial_args.config_path:
+        cfg_path = Path(initial_args.config_path).expanduser()
+        cfg = _read_json(cfg_path) if cfg_path.suffix == ".json" else _read_yaml(cfg_path)
+    else:
+        cfg = _load_local_config()
+
+    # Merge (config overrides defaults)
+    merged: Dict = {**defaults, **cfg}
+
+    # Parse again so we get every CLI flag
+    final_args = parser.parse_args()
+
+    # Command‑line wins – only override if the flag was actually given
+    if final_args.base_url is not None:
+        merged["base_url"] = final_args.base_url
+    if final_args.system_prompt is not None:
+        merged["system_prompt"] = final_args.system_prompt
+    if final_args.persona is not None:
+        merged["persona"] = final_args.persona
+    if final_args.handle is not None:
+        merged["handle"] = final_args.handle
+
+    return argparse.Namespace(**merged)
+
+__all__ = ["resolve_options"]
