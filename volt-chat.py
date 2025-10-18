@@ -115,7 +115,7 @@ def main() -> None:
     )
 
     Logger.log(
-        f"\n{Colors.italic}{ChatColors.system}"
+        f"\n{ChatColors.system}"
         f"Connected to {llm.client.base_url} using model '{opts.persona}'"
         f"{Colors.reset}\n"
     )
