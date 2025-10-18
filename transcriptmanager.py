@@ -28,7 +28,11 @@ class TranscriptManager:
 
     def save(self, llm, persona):
         date_str = datetime.now().strftime("%Y-%m-%d_%H%M")
-        filename = f"{date_str}_{persona}.json"
+        # Windows can't handle certain characters in filenames
+        safe_persona = persona
+        for ch in [':', '/', '\\', '*', '?', '"', '<', '>', '|']:
+            safe_persona = safe_persona.replace(ch, '_')
+        filename = f"{date_str}_{safe_persona}.json"
         llm.save_transcript(filename)
         Logger.log(f"\n{ChatColors.system}Chat saved to {filename}{Colors.reset}\n")
 
