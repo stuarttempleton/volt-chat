@@ -23,7 +23,7 @@ class CommandRouter:
         cmd = message.strip().lower()
 
         if cmd in {"/quit", "/bye", "/exit"}:
-            Logger.log(f"{Colors.reset}{Colors.italic}{ChatColors.system}\nExiting...{Colors.reset}\n")
+            Logger.log(f"{Colors.reset}{ChatColors.system}\nExiting...{Colors.reset}\n")
             sys.exit(0)
 
         elif cmd in {"/help", "/?"}:
@@ -54,7 +54,7 @@ class CommandRouter:
             return result  # return string to be sent
 
         elif cmd.startswith("/"): # catch mistake commands before handing them to LLM
-            Logger.log(f"\n{Colors.italic}{ChatColors.system}I don't know that command.{Colors.reset}")
+            Logger.log(f"\n{ChatColors.system}I don't know that command.{Colors.reset}")
             self._show_help()
             return True
         
@@ -79,4 +79,4 @@ Notes:
   - Type your message and press Enter to chat.
   - Commands must begin with a '/' character.
 """
-        Logger.log(f"\n{Colors.italic}{ChatColors.system}{help_text}{Colors.reset}\n")
+        Logger.log(f"\n{ChatColors.system}{help_text}{Colors.reset}\n")

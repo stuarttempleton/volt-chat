@@ -18,6 +18,6 @@ class ModelManager:
         elif "models" in models:
             for model in models['models']: 
                 model_list += f"\n\t{model.get('name', '??')} - {model.get('model', '??')}"
-        Logger.log(f"\n{Colors.italic}{ChatColors.system}Models found:{model_list}{Colors.reset}\n")
+        Logger.log(f"\n{ChatColors.system}Models found:{model_list}{Colors.reset}\n")
 
 ModelManager = ModelManager()

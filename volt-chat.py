@@ -88,7 +88,7 @@ def run_chat(llm, handle, persona):
         
         # Hand the chat message to the LLM
         try:
-            print(f"\n{Colors.italic}{ChatColors.system}Thinking...{Colors.reset}", end="\r", flush=True)
+            print(f"\n{ChatColors.system}Thinking...{Colors.reset}", end="\r", flush=True)
             response = llm.send_with_full_context(your_message)
             print(" " * 80, end="\r")
         except Exception as e:
