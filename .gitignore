@@ -1,3 +1,7 @@
+# Volt-Chat user config files (do not commit user-specific settings)
+volt-config.json
+volt-config.yaml
+.volt-config.*
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
