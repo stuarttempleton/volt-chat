@@ -72,6 +72,9 @@ def _build_parser() -> argparse.ArgumentParser:
     # Config file path
     parser.add_argument("--config", dest="config_path", metavar="PATH",
                         help="Explicitly load a config file (JSON or YAML)")
+    # transcript file base directory
+    parser.add_argument("--base-dir", dest="base_dir", metavar="PATH",
+                        help="Base directory for saving/loading transcripts")
 
     return parser
 
@@ -85,6 +88,7 @@ def resolve_options() -> argparse.Namespace:
         "persona": "Gemma3",
         "handle": "User",
         "system_prompt": "We are best buds!",
+        "base_dir": str(Path.home()),
     }
 
     # Load the config file (auto or explicit)
@@ -113,6 +117,8 @@ def resolve_options() -> argparse.Namespace:
         merged["persona"] = final_args.persona
     if final_args.handle is not None:
         merged["handle"] = final_args.handle
+    if final_args.base_dir is not None:
+        merged["base_dir"] = final_args.base_dir
 
     return argparse.Namespace(**merged)
 

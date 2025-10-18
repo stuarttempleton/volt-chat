@@ -69,8 +69,8 @@ def build_prompt(handle: str) -> str:
     prompt += f"{ChatColors.text}" # end the prompt with text color
     return prompt
 
-def run_chat(llm, handle, persona):
-    router = CommandRouter(llm=llm, persona=persona)
+def run_chat(llm, handle, persona, base_dir):
+    router = CommandRouter(llm=llm, persona=persona, base_dir=base_dir)
 
     # Main loop
     while True:
@@ -120,7 +120,7 @@ def main() -> None:
         f"{Colors.reset}\n"
     )
 
-    run_chat(llm=llm, handle=opts.handle, persona=opts.persona)
+    run_chat(llm=llm, handle=opts.handle, persona=opts.persona, base_dir=opts.base_dir)
 
 
 if __name__ == "__main__":

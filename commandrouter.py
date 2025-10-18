@@ -14,9 +14,14 @@ from historymanager import HistoryManager
 from multilinemanager import MultiLineManager
 
 class CommandRouter:
-    def __init__(self, llm, persona):
+    def __init__(self, llm, persona, base_dir=None):
         self.llm = llm
         self.persona = persona
+        if base_dir:
+            TranscriptManager.base_dir = base_dir
+
+    def update_base_dir(self, base_dir):
+        TranscriptManager.base_dir = base_dir
 
     def handle(self, message):
 
