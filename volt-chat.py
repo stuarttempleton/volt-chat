@@ -7,6 +7,7 @@
 
 import os
 import sys
+import socket
 from options import resolve_options
 
 # ANSI Chat colors
@@ -44,6 +45,30 @@ Notes:
 """
         Logger.help(message)
 
+def get_bash_style_cwd():
+    cwd = os.getcwd()
+    home = os.path.expanduser('~')
+    if cwd.startswith(home):
+        return '~' + cwd[len(home):]
+    return cwd
+
+def is_root():
+    return os.geteuid() == 0
+
+def get_prompt_suffix():
+    if (os.name == 'nt'):
+        return "> "
+    suffix = "# " if is_root() else "$ "
+    return suffix
+
+def build_prompt(handle: str) -> str:
+    prompt = f"{Colors.bold}{ChatColors.sender}{handle.capitalize()}@{socket.gethostname()}:{Colors.reset}"
+    # add current working directory
+    prompt += f"{ChatColors.highlight}{get_bash_style_cwd()}{Colors.reset}"
+    prompt += get_prompt_suffix()
+    prompt += f"{ChatColors.text}" # end the prompt with text color
+    return prompt
+
 def run_chat(llm, handle, persona):
     router = CommandRouter(llm=llm, persona=persona)
 
@@ -51,7 +76,7 @@ def run_chat(llm, handle, persona):
     while True:
 
         # Prompt the user for chat
-        prompt_prefix = f"{Colors.bold}{ChatColors.sender}{handle.capitalize()}{Colors.reset}: {ChatColors.text}"
+        prompt_prefix = build_prompt(handle)
         your_message = input(prompt_prefix).strip()
 
         # Handle any / commands from the user

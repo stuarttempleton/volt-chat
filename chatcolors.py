@@ -58,6 +58,6 @@ class ChatColors:
     system = Colors.fg.darkgrey
     sender = Colors.fg.green
     recpt = Colors.fg.purple
-    highlight = Colors.fg.cyan
+    highlight = Colors.fg.blue
 
 
