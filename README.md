@@ -14,37 +14,50 @@ It uses [`volt-llm-client`](https://github.com/stuarttempleton/volt-llm-client) 
 
 ---
 
+
 ## 📦 Requirements
 
 - Python 3.7+
 - [`volt-llm-client`](https://github.com/stuarttempleton/volt-llm-client)
 - [`volt-logger`](https://github.com/stuarttempleton/volt-logger)
+- [`pyyaml`](https://pyyaml.org/) (for YAML config support, optional)
 
-Install both manually if needed:
+Install all dependencies:
 
 ```bash
-pip install volt-llm-client
-````
+pip install -r requirements.txt
+# or, manually:
+pip install volt-llm-client pyyaml
+```
 
 ---
+
 
 ## 💬 Usage
 
 ```bash
-python volt-chat.py <model_name> <your_name> [--api-url=http://localhost:3000/api/chat/completions]
+python volt-chat.py [--persona=MODEL] [--handle=USERNAME] [--base-url=URL] [--system-prompt=TEXT] [--config=PATH] [--no-color]
 ```
 
-### Example
+### Examples
 
 ```bash
-python volt-chat.py Gemma3 Alice
+python volt-chat.py --persona=Gemma3:12b --handle=Alice --base-url=http://localhost:3000
+python volt-chat.py --persona=Llama2 --handle=Bob
+python volt-chat.py --help
+```
+
+You can use environment variables in arguments, e.g.:
+
+```powershell
+python volt-chat.py --handle=$env:USERNAME
 ```
 
 ---
 
 ## 🔐 API Token
 
-Make sure the `LLM_API_TOKEN` environment variable is set:
+If your LLM server requires an API or bearer token, make sure the `LLM_API_TOKEN` environment variable is set:
 
 ```bash
 export LLM_API_TOKEN=your_token_here  # Unix/macOS
@@ -54,7 +67,28 @@ $env:LLM_API_TOKEN = "your_token_here"  # PowerShell
 
 ---
 
-## Building the Executable (Windows)
+## � Configuration Files
+
+You can use a local config file for persistent settings:
+
+- `volt-config.json` or `volt-config.yaml` (in your project folder or home directory)
+- Or specify a config file with `--config=PATH`
+
+User config files are ignored by git (see `.gitignore`).
+
+Example `volt-config.json`:
+```json
+{
+    "persona": "Gemma3",
+    "handle": "Alice",
+    "base_url": "http://localhost:3000"
+}
+```
+
+---
+
+
+## 🏗️ Building the Executable (Windows)
 
 To build a standalone Windows `.exe` using PyInstaller:
 
@@ -79,16 +113,17 @@ To build a standalone Windows `.exe` using PyInstaller:
     dist/volt-chat.exe
     ```
 
-> ⚠️ The resulting `.exe` includes all dependencies (`requests`, `volt-llm-client`, and `volt-logger`) and can be run on machines without Python installed.
+> ⚠️ The resulting `.exe` includes all dependencies (`requests`, `volt-llm-client`, `volt-logger`, and optionally `pyyaml`) and can be run on machines without Python installed.
 
 ---
+
 
 ## 🧪 Testing the Executable
 
 Run your `.exe` from the command line:
 
 ```bash
-volt-chat.exe Gemma3 Alice
+volt-chat.exe --persona=Gemma3 --handle=Alice
 ```
 
 ---

@@ -1,2 +1,3 @@
 requests
 volt-llm-client
+pyyaml
