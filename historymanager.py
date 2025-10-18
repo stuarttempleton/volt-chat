@@ -19,7 +19,7 @@ class HistoryManager:
 
         Logger.log(f"\n{ChatColors.highlight}Recent user messages:{Colors.reset}")
         for i, line in enumerate(user_messages[-10:], start=1):
-            Logger.log(f"{i}: {line}")
+            Logger.log(f"\t{i}: {line}")
         
         return user_messages
     

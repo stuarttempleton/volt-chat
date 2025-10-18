@@ -11,18 +11,18 @@ from chatcolors import Colors
 from chatcolors import ChatColors
 
 class TranscriptManager:
-    def __init__(self, base_dir="."):
+    def __init__(self, base_dir=os.path.expanduser('~')):
         self.base_dir = base_dir
 
     def list_transcripts(self):
-        files = sorted([f for f in os.listdir('.') if f.endswith('.json')], reverse=True)
+        files = sorted([f for f in os.listdir(self.base_dir) if f.endswith('.json')], reverse=True)
         if not files:
             Logger.log(f"\n{ChatColors.system}(No .json transcript files found in current directory.){Colors.reset}\n")
             return None
 
         Logger.log(f"\n{ChatColors.highlight}Available transcript files:{Colors.reset}")
         for i, file in enumerate(files, start=1):
-            Logger.log(f"  {i}. {file}")
+            Logger.log(f"\t{i}. {file}")
 
         return files
 
@@ -32,7 +32,7 @@ class TranscriptManager:
         safe_persona = persona
         for ch in [':', '/', '\\', '*', '?', '"', '<', '>', '|']:
             safe_persona = safe_persona.replace(ch, '_')
-        filename = f"{date_str}_{safe_persona}.json"
+        filename = f"{self.base_dir}/{date_str}_{safe_persona}.json"
         llm.save_transcript(filename)
         Logger.log(f"\n{ChatColors.system}Chat saved to {filename}{Colors.reset}\n")
 
@@ -48,7 +48,7 @@ class TranscriptManager:
                 index = int(choice) - 1
                 if 0 <= index < len(files):
                     filename = files[index]
-                    llm.load_transcript(filename)
+                    llm.load_transcript(f"{self.base_dir}/{filename}")
                     Logger.log(f"\n{ChatColors.system}Loaded transcript from {filename}{Colors.reset}\n")
                 else:
                     Logger.log(f"{Colors.fg.red}Invalid selection.{Colors.reset}")
