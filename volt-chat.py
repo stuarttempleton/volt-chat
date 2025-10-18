@@ -62,9 +62,9 @@ def get_prompt_suffix():
     return suffix
 
 def build_prompt(handle: str) -> str:
-    prompt = f"{Colors.bold}{ChatColors.sender}{handle.capitalize()}@{socket.gethostname()}:{Colors.reset}"
+    prompt = f"{Colors.fg.green}{ChatColors.sender}{handle}@{socket.gethostname()}:{Colors.reset}"
     # add current working directory
-    prompt += f"{ChatColors.highlight}{get_bash_style_cwd()}{Colors.reset}"
+    prompt += f"{Colors.fg.blue}{get_bash_style_cwd()}{Colors.reset}"
     prompt += get_prompt_suffix()
     prompt += f"{ChatColors.text}" # end the prompt with text color
     return prompt
