@@ -35,7 +35,6 @@ def _read_yaml(path: Path) -> Dict:
 
 
 def _load_local_config() -> Dict:
-    """Search cwd ➜ home for a config file and return its dict."""
     candidates = [
         Path.cwd() / "volt-config.json",
         Path.cwd() / "volt-config.yaml",
@@ -47,9 +46,7 @@ def _load_local_config() -> Dict:
     for cfg_path in candidates:
         data = _read_json(cfg_path) if cfg_path.suffix == ".json" else _read_yaml(cfg_path)
         if data:
-            print(f"[volt-chat] ✅  Loaded config from {cfg_path}")
             return data
-    print("[volt-chat] No config file found - using defaults")
     return {}
 
 
