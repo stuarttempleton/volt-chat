@@ -99,6 +99,9 @@ def run_chat(llm, opts):
         # READ
         # Prompt the user 
         prompt_prefix = build_prompt(opts.handle)
+        if router.last_command_error != 0:
+            prompt_prefix = f"{Colors.fg.red}[{router.last_command_error}] {Colors.reset}" + prompt_prefix
+            router.last_command_error = 0
         your_message = input(prompt_prefix).strip()
 
         # Handle any / commands from the user

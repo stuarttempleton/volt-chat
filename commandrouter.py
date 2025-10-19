@@ -21,6 +21,7 @@ class CommandRouter:
         if opts.base_dir:
             TranscriptManager.base_dir = opts.base_dir
         self.shell_exec_privs = getattr(opts, "shell_exec_privs", 0)
+        self.last_command_error = 0
 
     def update_base_dir(self, base_dir):
         TranscriptManager.base_dir = base_dir
@@ -83,7 +84,8 @@ class CommandRouter:
             return
         if command:
             Logger.log(f"{ChatColors.system}Executing system command: {command}{Colors.reset}")
-            subprocess.run(command, shell=True)
+            ret = subprocess.run(command, shell=True)
+            self.last_command_error = ret.returncode
         else:
             Logger.log(f"{Colors.fg.red}No command provided to execute.{Colors.reset}")
 
