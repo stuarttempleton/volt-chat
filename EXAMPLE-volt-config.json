@@ -1,6 +1,7 @@
 {
   "base_url": "http://localhost:11434",
   "persona": "gpt-oss:20b",
+  "shell_name": "volt-shell",
   "handle": "Alice",
   "system_prompt": "You are an AI assistant."
 }

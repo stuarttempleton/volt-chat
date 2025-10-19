@@ -6,6 +6,7 @@
 
 
 import os
+import subprocess
 import sys
 import socket
 from options import resolve_options
@@ -61,22 +62,43 @@ def get_prompt_suffix():
     suffix = "# " if is_root() else "$ "
     return suffix
 
+def git_branch() -> str | None:
+    try:
+        return subprocess.check_output(
+            ["git", "rev-parse", "--abbrev-ref", "HEAD"],
+            stderr=subprocess.DEVNULL,
+        ).decode().strip()
+    except Exception:
+        return None
+    
 def build_prompt(handle: str) -> str:
-    prompt = f"{Colors.fg.green}{ChatColors.sender}{handle}@{socket.gethostname()}:{Colors.reset}"
-    # add current working directory
-    prompt += f"{Colors.fg.blue}{get_bash_style_cwd()}{Colors.reset}"
-    prompt += get_prompt_suffix()
-    prompt += f"{ChatColors.text}" # end the prompt with text color
-    return prompt
+    user = f"{ChatColors.sender}{handle}@{socket.gethostname()}:{Colors.reset}"
+    cwd = f"{ChatColors.system}(cwd:{get_bash_style_cwd()}){Colors.reset}"
+    delimiter = ">"
 
-def run_chat(llm, handle, persona, base_dir):
-    router = CommandRouter(llm=llm, persona=persona, base_dir=base_dir)
+    branch = git_branch()
+    if branch:
+        branch_str = f" - {branch}"
+        cwd = cwd.replace(")", f"{branch_str})")
 
-    # Main loop
+    return f"{user} {delimiter} {cwd} "
+    
+def build_sender(sender: str, model: str) -> str:
+    user = f"{Colors.fg.cyan}{sender}@{socket.gethostname()}:{Colors.reset}"
+    model = f"{ChatColors.system}(model:{model}){Colors.reset}"
+    delimiter = ">"
+
+    return f"{user} {delimiter} {model} "
+
+def run_chat(llm, opts):
+    router = CommandRouter(llm=llm, persona=opts.persona, base_dir=opts.base_dir)
+
+    # REPL loop
     while True:
 
-        # Prompt the user for chat
-        prompt_prefix = build_prompt(handle)
+        # READ
+        # Prompt the user 
+        prompt_prefix = build_prompt(opts.handle)
         your_message = input(prompt_prefix).strip()
 
         # Handle any / commands from the user
@@ -84,8 +106,9 @@ def run_chat(llm, handle, persona, base_dir):
         if handled is True:
             continue # handled!
         elif isinstance(handled, str):
-            your_message = handled # Pass the mssage on!
-        
+            your_message = handled # Pass the message on!
+
+        # EVAL
         # Hand the chat message to the LLM
         try:
             print(f"\n{ChatColors.system}Thinking...{Colors.reset}", end="\r", flush=True)
@@ -95,9 +118,9 @@ def run_chat(llm, handle, persona, base_dir):
             Logger.log(f"\n{Colors.fg.red}Error from LLM: {e}{Colors.reset}\n")
             continue
 
+        # PRINT && LOOP
         # Tell us what the LLM had to say about it
-        response = response.replace(f"{handle.capitalize()}", f" {Colors.bold}{ChatColors.highlight}{handle.upper()}{Colors.reset}{ChatColors.text}")
-        Logger.log(f"{Colors.reset}{Colors.bold}{ChatColors.recpt}{persona.capitalize()}{Colors.reset}: {ChatColors.text}{response}{Colors.reset}\n")
+        Logger.log(f"{build_sender(opts.shell_name, opts.persona)} {ChatColors.text}{response}{Colors.reset}\n")
 
 
 def main() -> None:
@@ -120,7 +143,7 @@ def main() -> None:
         f"{Colors.reset}\n"
     )
 
-    run_chat(llm=llm, handle=opts.handle, persona=opts.persona, base_dir=opts.base_dir)
+    run_chat(llm=llm, opts=opts)
 
 
 if __name__ == "__main__":

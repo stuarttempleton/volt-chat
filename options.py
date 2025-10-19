@@ -75,6 +75,9 @@ def _build_parser() -> argparse.ArgumentParser:
     # transcript file base directory
     parser.add_argument("--base-dir", dest="base_dir", metavar="PATH",
                         help="Base directory for saving/loading transcripts")
+    # custom shell name
+    parser.add_argument("--shell-name", dest="shell_name", metavar="NAME",
+                        help="Custom shell name to display in the prompt")
 
     return parser
 
@@ -89,6 +92,7 @@ def resolve_options() -> argparse.Namespace:
         "handle": "User",
         "system_prompt": "We are best buds!",
         "base_dir": str(Path.home()),
+        "shell_name": "volt-shell",
     }
 
     # Load the config file (auto or explicit)
@@ -119,6 +123,8 @@ def resolve_options() -> argparse.Namespace:
         merged["handle"] = final_args.handle
     if final_args.base_dir is not None:
         merged["base_dir"] = final_args.base_dir
+    if final_args.shell_name is not None:
+        merged["shell_name"] = final_args.shell_name
 
     return argparse.Namespace(**merged)
 
