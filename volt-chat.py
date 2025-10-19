@@ -91,7 +91,7 @@ def build_sender(sender: str, model: str) -> str:
     return f"{user} {delimiter} {model} "
 
 def run_chat(llm, opts):
-    router = CommandRouter(llm=llm, persona=opts.persona, base_dir=opts.base_dir)
+    router = CommandRouter(llm=llm, opts=opts)
 
     # REPL loop
     while True:
@@ -136,11 +136,15 @@ def main() -> None:
         system_prompt=opts.system_prompt,
         base_url=opts.base_url,
     )
+    shell_exec_enabled_warning = ""
+    if getattr(opts, "shell_exec_privs", 0) > 0:
+        shell_exec_enabled_warning = f"{Colors.fg.yellow}CAUTION: Shell exec enabled!{Colors.reset}\n"
 
     Logger.log(
         f"\n{ChatColors.system}"
-        f"Connected to {llm.client.base_url} using model '{opts.persona}'"
-        f"{Colors.reset}\n"
+        f"Connected to {llm.client.base_url} using model '{opts.persona}'\n"
+        f"{shell_exec_enabled_warning}"
+        f"{Colors.reset}"
     )
 
     run_chat(llm=llm, opts=opts)

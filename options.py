@@ -78,6 +78,9 @@ def _build_parser() -> argparse.ArgumentParser:
     # custom shell name
     parser.add_argument("--shell-name", dest="shell_name", metavar="NAME",
                         help="Custom shell name to display in the prompt")
+    # Enable shell functions
+    parser.add_argument("--set-exec-privs", dest="shell_exec_privs", metavar="0|1|2|3",
+                        help="Set shell execution privileges (for /exec command). Use with caution! 0 = disabled")
 
     return parser
 
@@ -93,6 +96,7 @@ def resolve_options() -> argparse.Namespace:
         "system_prompt": "We are best buds!",
         "base_dir": str(Path.home()),
         "shell_name": "volt-shell",
+        "shell_exec_privs": 0,
     }
 
     # Load the config file (auto or explicit)
@@ -125,6 +129,8 @@ def resolve_options() -> argparse.Namespace:
         merged["base_dir"] = final_args.base_dir
     if final_args.shell_name is not None:
         merged["shell_name"] = final_args.shell_name
+    if final_args.shell_exec_privs is not None:
+        merged["shell_exec_privs"] = final_args.shell_exec_privs
 
     return argparse.Namespace(**merged)
 

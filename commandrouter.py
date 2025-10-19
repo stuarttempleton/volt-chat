@@ -4,6 +4,7 @@
 # Routes varous slash commands to the proper manager. 
 # 
 
+import subprocess
 import sys
 
 from voltlogger import Logger
@@ -14,11 +15,12 @@ from historymanager import HistoryManager
 from multilinemanager import MultiLineManager
 
 class CommandRouter:
-    def __init__(self, llm, persona, base_dir=None):
+    def __init__(self, llm, opts):
         self.llm = llm
-        self.persona = persona
-        if base_dir:
-            TranscriptManager.base_dir = base_dir
+        self.persona = opts.persona
+        if opts.base_dir:
+            TranscriptManager.base_dir = opts.base_dir
+        self.shell_exec_privs = getattr(opts, "shell_exec_privs", 0)
 
     def update_base_dir(self, base_dir):
         TranscriptManager.base_dir = base_dir
@@ -54,16 +56,36 @@ class CommandRouter:
                 return result
             return True  # still handled
 
+        elif cmd.startswith("/exec "):
+            if self.shell_exec_privs == 0:
+                self.unknown_command()
+                return True
+            else:
+                self.execute_system_command(cmd[len("/exec "):].strip())
+                return True
+
         elif cmd == MultiLineManager.toggle_string:
             result = MultiLineManager.read()
             return result  # return string to be sent
 
         elif cmd.startswith("/"): # catch mistake commands before handing them to LLM
-            Logger.log(f"\n{ChatColors.system}I don't know that command.{Colors.reset}")
-            self._show_help()
+            self.unknown_command()
             return True
         
         return False  # Command not recognized
+
+    def unknown_command(self):
+        Logger.log(f"\n{ChatColors.system}I don't know that command.{Colors.reset}")
+        self._show_help()
+
+    def execute_system_command(self, command: str):
+        if self.shell_exec_privs == 0:
+            return
+        if command:
+            Logger.log(f"{ChatColors.system}Executing system command: {command}{Colors.reset}")
+            subprocess.run(command, shell=True)
+        else:
+            Logger.log(f"{Colors.fg.red}No command provided to execute.{Colors.reset}")
 
     def _show_help(self):
         help_text = f"""
@@ -77,6 +99,8 @@ Available Commands:
                    You'll be prompted to choose by number.
   /history      View and optionally resend a recent user message.
   /models       List available models (if supported by API).
+  /exec <cmd>   Execute a system command directly.
+                   Example: /exec ls -la
   ///           Enter multiline input mode.
                    Type multiple lines, end with '///' on a new line.
 
