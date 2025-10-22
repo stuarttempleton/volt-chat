@@ -17,6 +17,7 @@ from chatcolors import ChatColors
 from voltlogger import Logger
 from voltllmclient import LLMConversation
 from commandrouter import CommandRouter
+from ExecutionManager import ExecutionManager
 
 
 def usage():
