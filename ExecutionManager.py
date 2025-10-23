@@ -8,9 +8,6 @@ class ExecutionManager:
     def __init__(self):
         self.cwd = os.getcwd()
 
-    def show(self):
-        print(f"Current working directory: {self.cwd}")
-
     # ----------------------
     # Entry point: run structured task list
     # ----------------------
@@ -32,7 +29,8 @@ class ExecutionManager:
             return last_exit_code
 
         # Builtin commands
-        if task.get("type") == "builtin":
+        BUILTINS = {"cd", "exit"}
+        if task["cmd"] and task["cmd"][0] in BUILTINS:
             return self._handle_builtin(task["cmd"], task.get("stdout"), task.get("append"))
 
         # Subshell
@@ -126,9 +124,6 @@ class ExecutionManager:
             if stdout is not None:
                 out_stream = open(stdout, out_append)
             print(self.cwd, file=out_stream)
-            return 0
-        elif cmd[0] == "show":
-            self.show()
             return 0
         elif cmd[0] == "exit":
             raise SystemExit(0)
