@@ -138,9 +138,18 @@ def parse_raw_command(raw_cmd):
 
             # Pipeline or single command
             if "|" in base:
-                task["cmd"] = parse_pipeline(base)
+                task["cmd"] = parse_pipeline(base)  
             else:
                 task["cmd"] = shlex.split(base)
+            
+            BUILTINS = {"cd", "pwd", "exit"}  # example set
+            if "cmd" in task:
+                if isinstance(task["cmd"], list) and task["cmd"]:
+                    if task["cmd"][0] in BUILTINS:
+                        task["type"] = "builtin"
+                    else:
+                        task["type"] = "external"
+            print(task)
 
         # Conditional
         if prev_op == "&&":

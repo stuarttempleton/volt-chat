@@ -6,6 +6,7 @@
 
 import subprocess
 import sys
+import json
 
 from voltlogger import Logger
 from chatcolors import Colors, ChatColors
@@ -13,6 +14,8 @@ from transcriptmanager import TranscriptManager
 from modelmanager import ModelManager
 from historymanager import HistoryManager
 from multilinemanager import MultiLineManager
+from ExecutionManager import ExecutionManager
+from raw_parser import parse_raw_command
 
 class CommandRouter:
     def __init__(self, llm, opts):
@@ -22,6 +25,7 @@ class CommandRouter:
             TranscriptManager.base_dir = opts.base_dir
         self.shell_exec_privs = getattr(opts, "shell_exec_privs", 0)
         self.last_command_error = 0
+        self.execution_manager = ExecutionManager()
 
     def update_base_dir(self, base_dir):
         TranscriptManager.base_dir = base_dir
@@ -84,8 +88,14 @@ class CommandRouter:
             return
         if command:
             Logger.log(f"{ChatColors.system}Executing system command: {command}{Colors.reset}")
-            ret = subprocess.run(command, shell=True)
-            self.last_command_error = ret.returncode
+
+            # Try JSON first
+            try:
+                tasks = json.loads(command)
+            except json.JSONDecodeError:
+                tasks = parse_raw_command(command)
+
+            self.last_command_error = self.execution_manager.exec_tasks(tasks)
         else:
             Logger.log(f"{Colors.fg.red}No command provided to execute.{Colors.reset}")
 

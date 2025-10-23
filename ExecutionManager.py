@@ -2,6 +2,7 @@ import os
 import subprocess
 import threading
 import shlex
+import sys
 
 class ExecutionManager:
     def __init__(self):
@@ -32,7 +33,7 @@ class ExecutionManager:
 
         # Builtin commands
         if task.get("type") == "builtin":
-            return self._handle_builtin(task["cmd"])
+            return self._handle_builtin(task["cmd"], task.get("stdout"), task.get("append"))
 
         # Subshell
         if task.get("type") == "subshell":
@@ -46,7 +47,9 @@ class ExecutionManager:
             threading.Thread(target=self._run_pipeline,
                              args=(task["cmd"], task.get("stdout"), task.get("append", False)),
                              daemon=True).start()
-            print(f"[bg] started: {' '.join(task['cmd'])}")
+            display = " | ".join(" ".join(p) for p in task["cmd"])
+            print(f"[bg] started: {display}")
+
             return 0
 
         # Normal command / pipeline
@@ -87,7 +90,7 @@ class ExecutionManager:
                 print(f"Command not found: {args[0]}")
                 return 127
             finally:
-                if prev_proc:
+                if prev_proc and prev_proc.stdout:
                     prev_proc.stdout.close()
             prev_proc = proc
 
@@ -106,7 +109,7 @@ class ExecutionManager:
     # ----------------------
     # Builtins
     # ----------------------
-    def _handle_builtin(self, cmd):
+    def _handle_builtin(self, cmd, stdout=None, append=None):
         if not cmd:
             return 0
         if cmd[0] == "cd":
@@ -118,7 +121,11 @@ class ExecutionManager:
                 print(f"cd: {e}")
             return 0
         elif cmd[0] == "pwd":
-            print(self.cwd)
+            out_stream = sys.stdout
+            out_append = 'a' if append else 'w'
+            if stdout is not None:
+                out_stream = open(stdout, out_append)
+            print(self.cwd, file=out_stream)
             return 0
         elif cmd[0] == "show":
             self.show()
@@ -126,3 +133,31 @@ class ExecutionManager:
         elif cmd[0] == "exit":
             raise SystemExit(0)
         return 0
+
+
+if __name__ == "__main__":
+
+    from raw_parser import parse_raw_command
+    import json
+    
+    execmgr = ExecutionManager()
+    while True:
+        try:
+            command = input("volt> ")
+            if command.strip() in ("exit", "quit"):
+                sys.exit(0)
+
+            # Try JSON first
+            try:
+                tasks = json.loads(command)
+            except json.JSONDecodeError:
+                tasks = parse_raw_command(command)
+
+            execmgr.exec_tasks(tasks)
+
+        except (EOFError, KeyboardInterrupt):
+            print("\nExiting volt-shell.")
+            sys.exit(0)
+        except SystemExit:
+            print("Goodbye.")
+            sys.exit(0)
