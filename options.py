@@ -7,7 +7,6 @@
 
 import argparse
 import json
-import sys
 import os
 from pathlib import Path
 from typing import Dict
@@ -82,6 +81,9 @@ def _build_parser() -> argparse.ArgumentParser:
     # Enable shell functions
     parser.add_argument("--set-exec-privs", dest="shell_exec_privs", metavar="0|1|2|3",
                         help="Set shell execution privileges (for /exec command). Use with caution! 0 = disabled")
+    # Shell mode (built-in vs ExecutionManager)
+    parser.add_argument("--shell-mode", dest="shell_mode", metavar="0|1",
+                        help="Set shell execution mode: 0 = system shell, 1 = volt-shell")
 
     return parser
 
@@ -98,6 +100,7 @@ def resolve_options() -> argparse.Namespace:
         "base_dir": str(Path.home()),
         "shell_name": "volt-shell",
         "shell_exec_privs": 0,
+        "shell_mode": 0,  # 0 = system shell, 1 = volt-shell
     }
 
     # Load the config file (auto or explicit)
@@ -132,6 +135,8 @@ def resolve_options() -> argparse.Namespace:
         merged["shell_name"] = final_args.shell_name
     if final_args.shell_exec_privs is not None:
         merged["shell_exec_privs"] = final_args.shell_exec_privs
+    if final_args.shell_mode is not None:
+        merged["shell_mode"] = final_args.shell_mode
 
     return argparse.Namespace(**merged)
 
