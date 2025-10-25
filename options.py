@@ -8,6 +8,7 @@
 import argparse
 import json
 import sys
+import os
 from pathlib import Path
 from typing import Dict
 
@@ -92,7 +93,7 @@ def resolve_options() -> argparse.Namespace:
     defaults: Dict = {
         "base_url": "http://localhost:3000",
         "persona": "Gemma3",
-        "handle": "User",
+        "handle": os.getlogin() if hasattr(os, "getlogin") else "User",
         "system_prompt": "We are best buds!",
         "base_dir": str(Path.home()),
         "shell_name": "volt-shell",

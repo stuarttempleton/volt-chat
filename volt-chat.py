@@ -72,7 +72,7 @@ def git_branch() -> str | None:
     except Exception:
         return None
     
-def build_prompt(handle: str) -> str:
+def build_prompt(handle: str, isShell = False) -> str:
     user = f"{ChatColors.sender}{handle}@{socket.gethostname()}:{Colors.reset}"
     cwd = f"{ChatColors.system}(cwd:{get_bash_style_cwd()}){Colors.reset}"
     delimiter = ">"
@@ -82,8 +82,9 @@ def build_prompt(handle: str) -> str:
         branch_str = f" - {branch}"
         cwd = cwd.replace(")", f"{branch_str})")
 
-    return f"{user} {delimiter} {cwd} "
-    
+    path = f"{user} {delimiter} {cwd} " if isShell else f"{user} {delimiter} "
+    return path
+
 def build_sender(sender: str, model: str) -> str:
     user = f"{Colors.fg.cyan}{sender}@{socket.gethostname()}:{Colors.reset}"
     model = f"{ChatColors.system}(model:{model}){Colors.reset}"
@@ -99,7 +100,7 @@ def run_chat(llm, opts):
 
         # READ
         # Prompt the user 
-        prompt_prefix = build_prompt(opts.handle)
+        prompt_prefix = build_prompt(opts.handle, opts.shell_exec_privs > 0)
         if router.last_command_error != 0:
             prompt_prefix = f"{Colors.fg.red}[{router.last_command_error}] {Colors.reset}" + prompt_prefix
             router.last_command_error = 0
@@ -146,7 +147,7 @@ def main() -> None:
 
     Logger.log(
         f"\n{ChatColors.system}"
-        f"Connected to {llm.client.base_url} using model '{opts.persona}'\n"
+        f"Connected to {llm.client.base_url} ({llm.client.api_type}) using model '{opts.persona}'\n"
         f"{shell_exec_enabled_warning}"
         f"{Colors.reset}"
     )
