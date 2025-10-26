@@ -36,6 +36,7 @@ class CommandRouter:
     def set_working_directory(self, path):
         try:
             os.chdir(path)
+            self.execution_manager.cwd = os.getcwd()
             Logger.log(f"{ChatColors.system}Changed working directory to: {os.getcwd()}{Colors.reset}")
         except Exception as e:
             Logger.log(f"{Colors.fg.red}Error changing directory: {e}{Colors.reset}")

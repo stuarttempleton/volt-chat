@@ -7,6 +7,7 @@
 
 import os
 import subprocess
+import readline
 import sys
 import socket
 from options import resolve_options
