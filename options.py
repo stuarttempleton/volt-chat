@@ -38,7 +38,6 @@ def _load_local_config() -> Dict:
     candidates = [
         Path.cwd() / "volt-config.json",
         Path.cwd() / "volt-config.yaml",
-        Path.home() / ".volt-config.rc",
         Path.home() / ".volt-config.json",
         Path.home() / ".volt-config.yaml",
     ]

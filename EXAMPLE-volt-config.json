@@ -3,6 +3,7 @@
   "persona": "gpt-oss:20b",
   "shell_name": "volt-shell",
   "shell_exec_privs": 0,
+  "shell_mode": 0,
   "handle": "Alice",
   "system_prompt": "You are an AI assistant."
 }
