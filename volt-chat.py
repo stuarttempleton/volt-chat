@@ -7,10 +7,12 @@
 
 import os
 import subprocess
-import readline
 import sys
 import socket
 from options import resolve_options
+
+if sys.platform.startswith("linux") or sys.platform == "darwin":
+    import readline   # readline support for Unix-like systems, not needed on Windows >= 10
 
 # ANSI Chat colors
 from chatcolors import Colors
