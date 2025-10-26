@@ -1,7 +1,39 @@
+# Example Volt configuration file
+#
+# This file sets up the basic parameters for running Volt Chat.
+# All of these settings are optional and can be overridden via command-line options.
+
+# Base URL of the LLM server. You can use Ollama (11434) or Open WebUI.
+# It will try to determine if it's Ollama or Open WebUI automatically.
+# DEFAULT: http://localhost:3000 (for Open WebUI)
 base_url: http://localhost:11434
+
+# LLM model/persona to use. Make sure the model is installed/available in your LLM server.
+# For Open WebUI, you can also use custom models configured in "workspaces".
+# DEFAULT: Gemma3
 persona: gpt-oss:20b
-shell_name: volt-shell
-shell_exec_privs: 0
-handle: Alice
+
+# User handle/name to display in the shell prompt.
+# DEFAULT: system username
+#handle: Alice
+
+# System prompt to use for the LLM. This defines the behavior of the AI assistant.
+# DEFAULT: We are best buds!
 system_prompt: | 
   You are an AI assistant.
+
+# Shell specific settings
+# 
+# CAUTION -- HERE BE DRAGONS --
+#
+# Name of the shell to use. This is purely cosmetic and defines the prompt.
+# DEFAULT: volt-shell
+shell_name: volt-shell
+
+# The privilege level of the shell. 0 = no shell access, >=1 = full execution privileges.
+# DEFAULT: 0 (no shell access)
+shell_exec_privs: 0
+
+# The mode of the shell. 0 = built in system shell (cmd.exe, /bin/bash, etc...), 1 = volt-shell posix-like shell.
+# DEFAULT: 0 (built in system shell)
+shell_mode: 0
