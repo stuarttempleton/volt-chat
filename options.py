@@ -6,6 +6,7 @@
 
 
 import argparse
+import getpass
 import json
 import os
 from pathlib import Path
@@ -94,7 +95,7 @@ def resolve_options() -> argparse.Namespace:
     defaults: Dict = {
         "base_url": "http://localhost:3000",
         "persona": "Gemma3",
-        "handle": os.getlogin() if hasattr(os, "getlogin") else "User",
+        "handle": getpass.getuser() if hasattr(os, "getlogin") else "User",
         "system_prompt": "We are best buds!",
         "base_dir": str(Path.home()),
         "shell_name": "volt-shell",
